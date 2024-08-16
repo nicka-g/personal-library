@@ -87,5 +87,12 @@ namespace PersonalLibrary.Controllers
 
             return Ok(addBookDTO);
         }
+
+        //[HttpPut("{studentId}")]
+        //public async Task<ActionResult> UpdateBook(int studentId, BookAuthor update)
+        //{
+        //    //var update = await _context.BookAuthors
+        //    return Ok(update);
+        //}
     }
 }
