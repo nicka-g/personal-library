@@ -88,11 +88,19 @@ namespace PersonalLibrary.Controllers
             return Ok(addBookDTO);
         }
 
-        //[HttpPut("{studentId}")]
-        //public async Task<ActionResult> UpdateBook(int studentId, BookAuthor update)
-        //{
-        //    //var update = await _context.BookAuthors
-        //    return Ok(update);
-        //}
+        [HttpDelete]
+        public async Task<ActionResult> DeleteBook(int bookId)
+        {
+            var bookToDel = await _context.Books.FindAsync(bookId);
+
+            if (bookToDel == null)
+            {
+                return NotFound();
+            }
+            _context.Books.Remove(bookToDel);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
