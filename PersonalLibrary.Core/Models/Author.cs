@@ -1,4 +1,11 @@
-﻿namespace PersonalLibrary.Models
+﻿using PersonalLibrary.Core.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PersonalLibrary.Core.Models
 {
     public class Author
     {

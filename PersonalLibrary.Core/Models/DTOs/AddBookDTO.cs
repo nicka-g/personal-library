@@ -1,6 +1,11 @@
-﻿using PersonalLibrary.Models.Enums;
+﻿using PersonalLibrary.Core.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PersonalLibrary.Models.DTOs
+namespace PersonalLibrary.Core.Models.DTOs
 {
     public class AddBookDTO
     {
@@ -9,7 +14,7 @@ namespace PersonalLibrary.Models.DTOs
         public BookGenre Genre { get; set; }
         public BookLocation Location { get; set; }
         public string? Synopsis { get; set; }
+        public List<string> AuthorNames { get; set; } = new List<string>();
 
-        public List<string> AuthorNames{ get; set; } = new List<string>();
     }
 }

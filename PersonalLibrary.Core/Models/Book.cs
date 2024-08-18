@@ -1,6 +1,12 @@
-﻿using PersonalLibrary.Models.Enums;
+﻿using PersonalLibrary.Core.Models.Enums;
+using PersonalLibrary.Core.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PersonalLibrary.Models
+namespace PersonalLibrary.Core.Models
 {
     public class Book
     {

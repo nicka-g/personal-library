@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PersonalLibrary.Data;
-using PersonalLibrary.Models;
-using PersonalLibrary.Models.DTOs;
+using PersonalLibrary.Infrastructure;
+using PersonalLibrary.Core.Models;
+using PersonalLibrary.Core.Models.DTOs;
+using PersonalLibrary.Core.Models.Enums;
 
 namespace PersonalLibrary.Controllers
 {

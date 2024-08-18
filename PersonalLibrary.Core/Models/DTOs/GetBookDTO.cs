@@ -1,6 +1,11 @@
-﻿using PersonalLibrary.Models.Enums;
+﻿using PersonalLibrary.Core.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PersonalLibrary.Models.DTOs
+namespace PersonalLibrary.Core.Models.DTOs
 {
     public class GetBookDTO
     {
