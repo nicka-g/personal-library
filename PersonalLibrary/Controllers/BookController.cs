@@ -78,7 +78,9 @@ namespace PersonalLibrary.Controllers
 
                     _context.Authors.Add(author);
                     await _context.SaveChangesAsync();
+                    //adds the newly added Author name to the current selected book 
                 }
+                //creates the relationship for selected book and new author 
                 addBook.BookAuthors.Add(new BookAuthor { Book = addBook, Author = author });
             }
 
@@ -86,6 +88,52 @@ namespace PersonalLibrary.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(addBookDTO);
+        }
+
+        [HttpPut("{bookId}")]
+        public async Task<ActionResult<Book>> UpdateBook(int bookId, AddBookDTO updateBook)
+        {
+
+            //search for BA and Authors using BookID
+            var search = await _context.Books.
+                Include(ba => ba.BookAuthors)
+                .ThenInclude(a => a.Author)
+                .FirstOrDefaultAsync(u => u.BookId == bookId);
+
+            if (search == null) return NotFound();
+
+            search.Title = updateBook.Title;
+            search.Status = updateBook.Status;
+            search.Genre = updateBook.Genre;
+            search.Location = updateBook.Location;
+            search.Synopsis = updateBook.Synopsis;
+
+            //updating authors list
+            var currentAuthors = search.BookAuthors.Select(c => c.Author.AuthorName).ToList();
+            var newAuthors = updateBook.AuthorNames;
+
+            var remove = search.BookAuthors.Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
+            //search.BookAuthors.Remove(remove);
+
+            foreach (var authors in newAuthors)
+            {
+
+            }
+            //foreach (var authorName in updateBook.AuthorNames)
+            //{
+            //    var author = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorName == authorName);
+            //    if (author == null)
+            //    {
+            //        author = new Author() { AuthorName = authorName };
+            //        _context.Update(author);
+            //        await _context.SaveChangesAsync();
+            //    }
+            //    update.BookAuthors.Add(new BookAuthor { Book = update, Author = author});
+            //}
+            _context.Books.Update(search);
+            await _context.SaveChangesAsync();
+
+            return Ok(updateBook);
         }
 
         [HttpDelete]
