@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using PersonalLibrary.Infrastructure;
 using PersonalLibrary.Core.Models;
 using PersonalLibrary.Core.Models.DTOs;
-using PersonalLibrary.Core.Models.Enums;
 
 namespace PersonalLibrary.Controllers
 {
