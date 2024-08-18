@@ -1,4 +1,4 @@
-﻿namespace PersonalLibrary.Models.Enums
+﻿namespace PersonalLibrary.Core.Models.Enums
 {
     public enum BookGenre
     {
