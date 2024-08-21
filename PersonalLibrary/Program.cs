@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PersonalLibrary.Core.Contracts.Repositories;
 using PersonalLibrary.Infrastructure;
+using PersonalLibrary.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//registering services
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 builder.Services.AddDbContext<LibraryDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
