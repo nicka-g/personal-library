@@ -93,7 +93,6 @@ namespace PersonalLibrary.Controllers
         [HttpPut("{bookId}")]
         public async Task<ActionResult<Book>> UpdateBook(int bookId, AddBookDTO updateBook)
         {
-
             //search for BA and Authors using BookID
             var search = await _context.Books.
                 Include(ba => ba.BookAuthors)
