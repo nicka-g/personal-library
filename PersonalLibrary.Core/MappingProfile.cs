@@ -14,6 +14,8 @@ namespace PersonalLibrary.Core
         public MappingProfile() {
 
             CreateMap<Book, GetBookDTO>()
+                .ForMember(dest => dest.Id, opt => opt
+                .MapFrom(src => src.BookId))
                 .ForMember(dest => dest.AuthorNames, opt => opt
                 .MapFrom(src => src.BookAuthors.Select(ba => ba.Author.AuthorName).ToList()));
 

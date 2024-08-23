@@ -9,6 +9,7 @@ namespace PersonalLibrary.Core.Models.DTOs
 {
     public class GetBookDTO
     {
+        public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public BookStatus Status { get; set; }
         public BookGenre Genre { get; set; }
