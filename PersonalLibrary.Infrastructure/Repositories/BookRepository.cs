@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PersonalLibrary.Core.Contracts.Repositories;
 using PersonalLibrary.Core.Models;
 using PersonalLibrary.Core.Models.DTOs;
@@ -13,9 +14,11 @@ namespace PersonalLibrary.Infrastructure.Repositories
     public class BookRepository : IBookRepository
     {
         private readonly LibraryDBContext _dbContext;
-        public BookRepository(LibraryDBContext dBContext)
+        private readonly IMapper _mapper;
+        public BookRepository(LibraryDBContext dBContext, IMapper mapper)
         {
             _dbContext = dBContext;
+            _mapper = mapper;
         
         }
         public async Task<IEnumerable<GetBookDTO>> GetBooks()
@@ -57,34 +60,29 @@ namespace PersonalLibrary.Infrastructure.Repositories
             return book;
         }
 
-        public async Task<Book> AddBook(AddBookDTO addBookDTO)
+        public async Task<AddBookDTO> AddBook(AddBookDTO addBookDTO)
         {
-            var addBook = new Book()
-            {
-                Title = addBookDTO.Title,
-                Status = addBookDTO.Status,
-                Genre = addBookDTO.Genre,
-                Location = addBookDTO.Location,
-                Synopsis = addBookDTO.Synopsis
-            };
+            var addBook = _mapper.Map<Book>(addBookDTO);
 
-            foreach (var author in addBookDTO.AuthorNames)
+            foreach (var authorName in addBookDTO.AuthorNames)
             {
-                var authorName = await _dbContext.Authors.FirstOrDefaultAsync(a => a.AuthorName == author);
-                if (authorName == null)
+                var searchAuthor = await _dbContext.Authors.FirstOrDefaultAsync(a => a.AuthorName == authorName);
+                if (searchAuthor == null)
                 {
-                    authorName = new Author() { AuthorName = author };
+                    searchAuthor = new Author() { AuthorName = authorName};
 
-                    _dbContext.Authors.Add(authorName);
+                    _dbContext.Authors.Add(searchAuthor);
                     await _dbContext.SaveChangesAsync();
                 }
-                addBook.BookAuthors.Add(new BookAuthor { Book = addBook, Author = authorName});
+                addBook.BookAuthors.Add(new BookAuthor { Book = addBook, Author = searchAuthor });
             }
 
             _dbContext.Books.Add(addBook);
             await _dbContext.SaveChangesAsync();
 
-            return addBook;
+            var result = _mapper.Map<AddBookDTO>(addBook);
+
+            return result;
         }
 
         public async Task<Book> UpdateBook(UpdateBookDTO updateBook, int bookId)

@@ -46,7 +46,7 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Book>> AddBook(AddBookDTO addBookDTO)
+        public async Task<ActionResult<AddBookDTO>> AddBook(AddBookDTO addBookDTO)
         {
             try
             {
@@ -69,8 +69,8 @@ namespace PersonalLibrary.Controllers
             catch (Exception ex) {return BadRequest(ex.Message); }
         }
 
-        [HttpDelete]
-        public async Task<ActionResult> DeleteBook(int bookId)
+        [HttpDelete("{bookId}")]
+        public async Task<ActionResult<bool>> DeleteBook(int bookId)
         {
             try
             {

@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using PersonalLibrary.Core;
 using PersonalLibrary.Core.Contracts.Repositories;
 using PersonalLibrary.Infrastructure;
 using PersonalLibrary.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,8 @@ builder.Services.AddSwaggerGen();
 
 //registering services
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<LibraryDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
