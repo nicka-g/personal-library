@@ -23,18 +23,14 @@ namespace PersonalLibrary.Infrastructure.Repositories
         }
         public async Task<IEnumerable<GetBookDTO>> GetBooks()
         {
-            var bookDTO = await _dbContext.Books.Select(ba => new GetBookDTO
-            {
-                Id = ba.BookId,
-                Title = ba.Title,
-                Status = ba.Status,
-                Genre = ba.Genre,
-                Location = ba.Location,
-                Synopsis = ba.Synopsis,
-                AuthorNames = ba.BookAuthors.Select(a => a.Author.AuthorName).ToList()
-            }).ToListAsync();
+            var books = await _dbContext.Books
+                .Include(ba => ba.BookAuthors)
+                .ThenInclude(a => a.Author)
+                .ToListAsync();
 
-            return bookDTO;
+            var bookDto = _mapper.Map<IEnumerable<GetBookDTO>>(books);
+
+            return bookDto;
         }
 
         public async Task<GetBookDTO> GetBookById(int bookId)
@@ -42,22 +38,15 @@ namespace PersonalLibrary.Infrastructure.Repositories
             var book = await _dbContext.Books
             .Include(ba => ba.BookAuthors)
             .ThenInclude(a => a.Author)
-            .Select(b => new GetBookDTO
-            {
-                Id = b.BookId,
-                Title = b.Title,
-                Status = b.Status,
-                Genre = b.Genre,
-                Location = b.Location,
-                Synopsis = b.Synopsis,
-                AuthorNames = b.BookAuthors.Select(a => a.Author.AuthorName).ToList()
-            }).FirstOrDefaultAsync(b => b.Id == bookId);
+            .FirstOrDefaultAsync(b => b.BookId == bookId);
 
             if (book == null)
             {
                 throw new Exception("Book not found. Please enter a valid Book Id");
             }
-            return book;
+
+            var result = _mapper.Map<GetBookDTO>(book);
+            return result;
         }
 
         public async Task<AddBookDTO> AddBook(AddBookDTO addBookDTO)
@@ -80,12 +69,13 @@ namespace PersonalLibrary.Infrastructure.Repositories
             _dbContext.Books.Add(addBook);
             await _dbContext.SaveChangesAsync();
 
+            //mapping back to AddBookDTO from Book
             var result = _mapper.Map<AddBookDTO>(addBook);
 
             return result;
         }
 
-        public async Task<Book> UpdateBook(UpdateBookDTO updateBook, int bookId)
+        public async Task<UpdateBookDTO> UpdateBook(UpdateBookDTO updateBook, int bookId)
         {
             var book = await _dbContext.Books
                 .Include(ba => ba.BookAuthors)
@@ -93,21 +83,21 @@ namespace PersonalLibrary.Infrastructure.Repositories
                 .FirstOrDefaultAsync(b => b.BookId == bookId);
 
             if (book == null) throw new Exception("Book Not Found");
+            
+            //update book entities instead of creating new instance
+            _mapper.Map(updateBook, book);
 
-            book.Title = updateBook.Title;
-            book.Status = updateBook.Status;
-            book.Genre = updateBook.Genre;
-            book.Location = updateBook.Location;
-            book.Synopsis = updateBook.Synopsis;
-
+            //Remove authors that are not in the updated list
             var newAuthors = updateBook.AuthorNames;
-            var authorsToRemove = book.BookAuthors.Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
+            var authorsToRemove = book.BookAuthors
+                .Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
 
             foreach (var authorToRemove in authorsToRemove)
             {
                 _dbContext.BookAuthors.Remove(authorToRemove);
             }
 
+            //add newly added authors
             foreach (var author in newAuthors)
             {
                 var authorName = await _dbContext.Authors.FirstOrDefaultAsync(a => a.AuthorName == author);
@@ -118,11 +108,16 @@ namespace PersonalLibrary.Infrastructure.Repositories
                     _dbContext.Add(authorName);
                     await _dbContext.SaveChangesAsync();
                 }
-
-                book.BookAuthors.Add(new BookAuthor() { Book = book, Author = authorName });
+                //to prevent duplicate authors
+                if (!book.BookAuthors.Any(ba => ba.AuthorId == authorName.AuthorId))
+                {
+                    book.BookAuthors.Add(new BookAuthor() { Book = book, Author = authorName });
+                }
             }
             await _dbContext.SaveChangesAsync();
-            return book;
+
+            var result = _mapper.Map<UpdateBookDTO>(book);
+            return result;
         }
 
         public async Task<bool> DeleteBook(int bookId)

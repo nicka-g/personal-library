@@ -21,6 +21,7 @@ builder.Services.AddSwaggerGen();
 //registering services
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 
+//adding automapper to automatically map entities
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<LibraryDBContext>(options =>

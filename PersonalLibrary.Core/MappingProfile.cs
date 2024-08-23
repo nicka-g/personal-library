@@ -13,6 +13,10 @@ namespace PersonalLibrary.Core
     {
         public MappingProfile() {
 
+            CreateMap<Book, GetBookDTO>()
+                .ForMember(dest => dest.AuthorNames, opt => opt
+                .MapFrom(src => src.BookAuthors.Select(ba => ba.Author.AuthorName).ToList()));
+
             //map AuthorNames(AddBookDTO) FROM BA collection in Book(which also has same prop)
             CreateMap<Book, AddBookDTO>()
                 .ForMember(dest => dest.AuthorNames, opt => opt
@@ -21,6 +25,13 @@ namespace PersonalLibrary.Core
             // Ignore BookAuthors as it needs custom handling
             CreateMap<AddBookDTO, Book>()
             .ForMember(dest => dest.BookAuthors, opt => opt.Ignore());
+
+            CreateMap<Book, UpdateBookDTO>()
+                .ForMember(dest => dest.AuthorNames, opt => opt
+                .MapFrom(src => src.BookAuthors.Select(ba => ba.Author.AuthorName).ToList()));
+
+            CreateMap<UpdateBookDTO, Book>()
+                .ForMember(dest => dest.BookAuthors, opt => opt.Ignore());
         }
     }
 }

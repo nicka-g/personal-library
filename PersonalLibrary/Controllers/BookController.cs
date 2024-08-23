@@ -56,7 +56,7 @@ namespace PersonalLibrary.Controllers
         }
 
         [HttpPut("{bookId}")]
-        public async Task<ActionResult<Book>> UpdateBook(UpdateBookDTO updateBook, int bookId)
+        public async Task<ActionResult<UpdateBookDTO>> UpdateBook(UpdateBookDTO updateBook, int bookId)
         {
             try
             {
