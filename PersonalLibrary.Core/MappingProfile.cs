@@ -32,8 +32,15 @@ namespace PersonalLibrary.Core
                 .ForMember(dest => dest.AuthorNames, opt => opt
                 .MapFrom(src => src.BookAuthors.Select(ba => ba.Author.AuthorName).ToList()));
 
-            CreateMap<UpdateBookDTO, Book>()
-                .ForMember(dest => dest.BookAuthors, opt => opt.Ignore());
+            CreateMap<UpdateBookDTO, Book>();
+            //    .ForMember(dest => dest.BookAuthors, opt => opt.Ignore());
+
+            CreateMap<Author, GetAuthorDTO>()
+                .ForMember(dest => dest.Id, opt => opt
+                .MapFrom(src => src.AuthorId))
+                .ForMember(dest => dest.BookList, opt => opt
+                .MapFrom(src => src.BookAuthors.Select(ba => ba.Book.Title).ToList()));
+
         }
     }
 }

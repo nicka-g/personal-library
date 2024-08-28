@@ -84,7 +84,7 @@ namespace PersonalLibrary.Infrastructure.Repositories
 
             if (book == null) throw new Exception("Book Not Found");
             
-            //update book entities instead of creating new instance
+            //update book properties instead of creating new instance
             _mapper.Map(updateBook, book);
 
             //Remove authors that are not in the updated list
@@ -92,6 +92,8 @@ namespace PersonalLibrary.Infrastructure.Repositories
             var authorsToRemove = book.BookAuthors
                 .Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
 
+
+            //book.BookAuthors.Clear();
             foreach (var authorToRemove in authorsToRemove)
             {
                 _dbContext.BookAuthors.Remove(authorToRemove);
@@ -100,7 +102,8 @@ namespace PersonalLibrary.Infrastructure.Repositories
             //add newly added authors
             foreach (var author in newAuthors)
             {
-                var authorName = await _dbContext.Authors.FirstOrDefaultAsync(a => a.AuthorName == author);
+                var authorName = await _dbContext.Authors
+                    .FirstOrDefaultAsync(a => a.AuthorName == author);
 
                 if (authorName == null)
                 {
@@ -122,13 +125,31 @@ namespace PersonalLibrary.Infrastructure.Repositories
 
         public async Task<bool> DeleteBook(int bookId)
         {
-            var bookToDel = await _dbContext.Books.FindAsync(bookId);
+            var bookToDel = await _dbContext.Books
+                .Include(ba => ba.BookAuthors)
+                .ThenInclude(a => a.Author)
+                .FirstOrDefaultAsync(b => b.BookId == bookId);
 
             if (bookToDel == null) return false;
+
+            var authorsList  = bookToDel.BookAuthors
+                .Select(ba => ba.Author).ToList();
 
             _dbContext.Remove(bookToDel);
             await _dbContext.SaveChangesAsync();
 
+            //checks if associated authors have any other books
+            foreach (var author in authorsList)
+            {
+                var check = await _dbContext.BookAuthors
+                    .AnyAsync(ba => ba.Author.AuthorId == author.AuthorId);
+
+                if (!check) //remove author if orphan
+                {
+                    _dbContext.Remove(author);
+                }
+            }
+            await _dbContext.SaveChangesAsync();
             return true;
         }
     }
