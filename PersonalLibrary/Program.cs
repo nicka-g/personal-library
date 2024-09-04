@@ -1,24 +1,31 @@
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using PersonalLibrary.Core;
 using PersonalLibrary.Core.Contracts.Repositories;
 using PersonalLibrary.Infrastructure;
 using PersonalLibrary.Infrastructure.Repositories;
+using System.Net;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers().AddJsonOptions(options =>
+builder.Services.AddControllers(options =>
 {
-    // Set the ReferenceHandler to IgnoreCycles to prevent circular references
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
-    // Optionally, configure other JSON options
-    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-
-    //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-});
+    options.ReturnHttpNotAcceptable = true;
+})
+    .AddXmlDataContractSerializerFormatters() //optional if you also want to cater XML output
+    .AddJsonOptions(options =>
+    {
+        // Set the ReferenceHandler to IgnoreCycles to prevent circular references
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        
+        // Optionally, configure other JSON options
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        
+        //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
