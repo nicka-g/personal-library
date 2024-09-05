@@ -32,18 +32,16 @@ namespace PersonalLibrary.Infrastructure.Repositories
 
             var result = _mapper.Map<IEnumerable<GetAuthorDTO>>(authors);
 
-            //var authorsToDel = authors
-            //    .Where(a => a.BookAuthors.Count() == 0).ToList();
+            var authorsToDel = authors
+                .Where(a => a.BookAuthors.Count() == 0).ToList();
 
-            //if (authorsToDel.Any())
-            //{
-            //    _context.RemoveRange(authorsToDel);
-            //    await _context.SaveChangesAsync();
-            //}
+            if (authorsToDel.Any())
+            {
+                _context.RemoveRange(authorsToDel);
+                await _context.SaveChangesAsync();
+            }
 
-            //return result.Where(authors => authors.BookList.Count > 0);
-
-            return result;
+            return result.Where(authors => authors.BookList.Count > 0);
         }
         public async Task<GetAuthorDTO> GetAuthorById(int id)
         {
@@ -63,5 +61,31 @@ namespace PersonalLibrary.Infrastructure.Repositories
             return result;
         }
 
+        public async Task UpdateAuthor(Book book, List<string> newAuthors)
+        {
+            var authorsToRemove = book.BookAuthors
+                .Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
+            _context.BookAuthors.RemoveRange(authorsToRemove);
+
+            var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToList();
+            foreach (var authorName in newAuthors)
+            {
+                var existingAuthor = await _context.Authors
+                    .FirstOrDefaultAsync(a => a.AuthorName == authorName);
+
+                if (existingAuthor == null)
+                {
+                    existingAuthor = new Author { AuthorName = authorName };
+                    _context.Authors.Add(existingAuthor);
+                    await _context.SaveChangesAsync();
+                }
+                if (!existingIds.Contains(existingAuthor.AuthorId))
+                {
+                    book.BookAuthors.Add(new BookAuthor() { Book = book, Author = existingAuthor });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

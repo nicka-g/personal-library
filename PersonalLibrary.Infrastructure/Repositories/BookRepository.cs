@@ -15,10 +15,12 @@ namespace PersonalLibrary.Infrastructure.Repositories
     {
         private readonly LibraryDBContext _dbContext;
         private readonly IMapper _mapper;
-        public BookRepository(LibraryDBContext dBContext, IMapper mapper)
+        private readonly IAuthorRepository _authorRepository;
+        public BookRepository(LibraryDBContext dBContext, IMapper mapper, IAuthorRepository authorRepository)
         {
             _dbContext = dBContext;
             _mapper = mapper;
+            _authorRepository = authorRepository;
         
         }
         public async Task<IEnumerable<GetBookDTO>> GetBooks()
@@ -86,43 +88,14 @@ namespace PersonalLibrary.Infrastructure.Repositories
             
             //update book properties instead of creating new instance
             _mapper.Map(updateBook, book);
+            await _authorRepository.UpdateAuthor (book, updateBook.AuthorNames);
 
-            //Remove authors that are not in the updated list
-            var newAuthors = updateBook.AuthorNames;
-            var authorsToRemove = book.BookAuthors
-                .Where(ba => !newAuthors.Contains(ba.Author.AuthorName)).ToList();
-
-
-            //book.BookAuthors.Clear();
-            foreach (var authorToRemove in authorsToRemove)
-            {
-                _dbContext.BookAuthors.Remove(authorToRemove);
-            }
-
-            //add newly added authors
-            foreach (var author in newAuthors)
-            {
-                var authorName = await _dbContext.Authors
-                    .FirstOrDefaultAsync(a => a.AuthorName == author);
-
-                if (authorName == null)
-                {
-                    authorName = new Author { AuthorName = author };
-                    _dbContext.Add(authorName);
-                    await _dbContext.SaveChangesAsync();
-                }
-                //to prevent duplicate authors
-                if (!book.BookAuthors.Any(ba => ba.AuthorId == authorName.AuthorId))
-                {
-                    book.BookAuthors.Add(new BookAuthor() { Book = book, Author = authorName });
-                }
-            }
             await _dbContext.SaveChangesAsync();
 
             var result = _mapper.Map<UpdateBookDTO>(book);
+
             return result;
         }
-
         public async Task<bool> DeleteBook(int bookId)
         {
             var bookToDel = await _dbContext.Books

@@ -12,5 +12,6 @@ namespace PersonalLibrary.Core.Contracts.Repositories
     {
         public Task<IEnumerable<GetAuthorDTO>> GetAuthors();
         public Task<GetAuthorDTO> GetAuthorById(int id);
+        public Task UpdateAuthor(Book book, List<string> newAuthors);
     }
 }
