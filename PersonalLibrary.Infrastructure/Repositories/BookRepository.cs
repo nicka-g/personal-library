@@ -96,6 +96,28 @@ namespace PersonalLibrary.Infrastructure.Repositories
 
             return result;
         }
+        public async Task<bool> PatchBook(PatchBookDTO patchBook, int bookId)
+        {
+            var book = await _dbContext.Books
+                .Include (ba => ba.BookAuthors)
+                .ThenInclude(a => a.Author)
+                .FirstOrDefaultAsync(a => a.BookId == bookId);
+
+            if (book == null)
+            {
+                return false;
+            }
+
+            _mapper.Map(patchBook, book);
+
+            if (patchBook.AuthorNames != null)
+            {
+                await _authorRepository.UpdateAuthor(book, patchBook.AuthorNames);
+            }
+            await _dbContext.SaveChangesAsync();
+            return true;
+            
+        }
         public async Task<bool> DeleteBook(int bookId)
         {
             var bookToDel = await _dbContext.Books
@@ -125,5 +147,6 @@ namespace PersonalLibrary.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
     }
 }

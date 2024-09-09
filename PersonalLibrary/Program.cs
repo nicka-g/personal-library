@@ -15,6 +15,7 @@ builder.Services.AddControllers(options =>
 {
     options.ReturnHttpNotAcceptable = true;
 })
+    .AddNewtonsoftJson()
     .AddXmlDataContractSerializerFormatters() //optional if you also want to cater XML output
     .AddJsonOptions(options =>
     {

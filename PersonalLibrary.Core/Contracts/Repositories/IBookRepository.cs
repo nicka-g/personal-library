@@ -14,6 +14,7 @@ namespace PersonalLibrary.Core.Contracts.Repositories
         public Task<GetBookDTO>GetBookById(int bookId);
         public Task<AddBookDTO> AddBook(AddBookDTO addBookDTO);
         public Task<UpdateBookDTO> UpdateBook(UpdateBookDTO updateBook, int bookId);
+        public Task<bool> PatchBook ( PatchBookDTO patchBook, int bookId);
         public Task<bool> DeleteBook(int bookId);
     }
 }
